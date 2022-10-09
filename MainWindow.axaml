@@ -1,9 +1,19 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="avalonia_play.MainWindow"
-        Title="avalonia_play">
-    Welcome to Avalonia!
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    x:Class="avalonia_play.MainWindow"
+    Title="avalonia_play">
+    <StackPanel>
+        <Label>Welcome to Avalonia!</Label>
+        <TextBox Name="input" IsEnabled="True" />
+        <TextBlock IsVisible="{Binding !#input.IsEnabled}">Fuck you</TextBlock>
+        <Button Content="{Binding ButtonText}"
+            Command="{Binding ButtonClicked}"
+            VerticalContentAlignment="Center"
+            HorizontalContentAlignment="Center"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Center" />
+    </StackPanel>
 </Window>
