@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using Avalonia.ReactiveUI;
 
 namespace avalonia_play
 {
@@ -15,6 +16,7 @@ namespace avalonia_play
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
+                // .UseReactiveUI()
                 .UsePlatformDetect()
                 .LogToTrace();
     }

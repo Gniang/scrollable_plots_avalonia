@@ -9,6 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
+            // "program": "${workspaceFolder}/bin/Debug/net6.0-windows/avalonia_play.dll",
             "program": "${workspaceFolder}/bin/Debug/net6.0/avalonia_play.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
