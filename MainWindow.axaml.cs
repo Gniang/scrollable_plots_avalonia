@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Reactive.Disposables;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.ReactiveUI;
 using NumSharp;
@@ -26,10 +27,11 @@ namespace avalonia_play
             {
                 LastChildFill = true,
             }
-                .Children(
+                .Children(new Control[]{
                     new TextBox().DockTop(),
-                    plot
-                )
+                    new ScrollBar() { Orientation = Avalonia.Layout.Orientation.Horizontal }.DockBottom(),
+                    plot,
+                })
             ;
             // this.WhenActivated(disposables =>
             // {
