@@ -34,7 +34,7 @@ namespace avalonia_play
                     new TextBox().DockTop(),
                     new ScrollBar() { Name = "hscrollbar", Orientation = Avalonia.Layout.Orientation.Horizontal }
                         .DockBottom()
-                        .On("Scroll", (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e)),
+                        .On(nameof(ScrollBar.Scroll), (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e)),
                     plot,
                 })
             ;
