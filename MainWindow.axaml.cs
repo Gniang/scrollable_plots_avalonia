@@ -1,8 +1,11 @@
+using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reactive.Disposables;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Logging;
 using Avalonia.ReactiveUI;
 using NumSharp;
 using ReactiveUI;
@@ -29,10 +32,18 @@ namespace avalonia_play
             }
                 .Children(new Control[]{
                     new TextBox().DockTop(),
-                    new ScrollBar() { Orientation = Avalonia.Layout.Orientation.Horizontal }.DockBottom(),
+                    new ScrollBar() { Name = "hscrollbar", Orientation = Avalonia.Layout.Orientation.Horizontal }
+                        .DockBottom()
+                        .On("Scroll", (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e)),
                     plot,
                 })
             ;
+
+            static void SyncPlotByScroll(object? s, ScrollEventArgs e)
+            {
+                Debug.WriteLine($"scroll:{e.NewValue}");
+            }
+
             // this.WhenActivated(disposables =>
             // {
             //     /* Handle interactions etc. */

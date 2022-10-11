@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 
 namespace avalonia_play;
@@ -12,6 +13,45 @@ public static class ControlExtensions
             panel.Children.Add(c);
         }
         return panel;
+    }
+
+
+
+    /// <summary>
+    /// Subscribe Event
+    /// <para>
+    /// <example>
+    /// eg.
+    /// <code language="C#">
+    /// <para>
+    ///   Button.Click += (s, e) => { Debug.WriteLine("Clicked"); };
+    /// </para>
+    ///      ↓
+    /// <para>
+    ///   Button.On("Click", (object? s, RoutedEventArgs e) => { Debug.WriteLine("Clicked"); } );
+    /// </para>
+    /// </code>
+    /// </example>
+    /// </para>
+    /// </summary>
+    public static T On<T, TEvent>(this T control, string eventName, EventHandler<TEvent> eventHandler)
+    where T : IControl
+    where TEvent : EventArgs
+    {
+        var ev = typeof(T).GetEvent(eventName);
+        if (ev is null)
+        {
+            throw new NullReferenceException($"[{typeof(T).FullName}] does not declared event [{eventName}].");
+        }
+
+        bool typeCompatible = ev.EventHandlerType?.IsAssignableFrom(typeof(EventHandler<TEvent>)) ?? false;
+        if (!typeCompatible)
+        {
+            throw new MissingMemberException(
+                $"[{eventName}] event hander type miss match. Actual type is [{ev.EventHandlerType?.FullName}], Argument type is [{typeof(EventHandler<TEvent>).FullName}]");
+        }
+        ev.AddEventHandler(control, eventHandler);
+        return control;
     }
 
     public static T DockLeft<T>(this T control)
