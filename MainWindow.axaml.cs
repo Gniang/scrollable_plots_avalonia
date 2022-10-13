@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Disposables;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -14,6 +15,8 @@ using ReactiveUI;
 using ScottPlot.Avalonia;
 using ScottPlot.Plottable;
 
+using static EnumerableExtensions;
+
 namespace avalonia_play
 {
     public partial class MainWindow :
@@ -23,22 +26,29 @@ namespace avalonia_play
     {
         public MainWindow()
         {
-            var plot = new ScottPlot.Avalonia.AvaPlot() { };
-            var d = (double[,])np.random.rand(200, 10_0).ToMuliDimArray<double>();
-            plot.Plot.AddHeatmap(d);
+            var plots = Enumerable.Range(0, 3)
+                .Select(x => new ScottPlot.Avalonia.AvaPlot())
+                .ToList();
+
+            plots.ForEach(plot =>
+            {
+                var d = (double[,])np.random.rand(200, 10_0).ToMuliDimArray<double>();
+                plot.Plot.AddHeatmap(d);
+            });
 
             Content = new Grid()
             {
                 Background = Brushes.AliceBlue,
             }
-                .RowDefinitions("50,*,Auto")
-                .Children(new Control[]{
-                    new TextBox().SetGrid(0),
-                    plot.SetGrid(1),
-                    new ScrollBar() { Orientation = Avalonia.Layout.Orientation.Horizontal }
-                        .SetGrid(2)
-                        .On(nameof(ScrollBar.Scroll), (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e)),
-                })
+                .RowDefinitions($"50,{string.Join(",", Enumerable.Repeat("*", plots.Count))},Auto")
+                .Children(ToFlatArray<Control>(
+                        new TextBox().SetGrid(0),
+                        plots.Select((plot, i) => plot.SetGrid(i + 1)),
+                        new ScrollBar() { Orientation = Avalonia.Layout.Orientation.Horizontal }
+                            .SetGrid(plots.Count + 1)
+                            .On(nameof(ScrollBar.Scroll), (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e))
+                    )
+                )
             ;
 
             static void SyncPlotByScroll(object? s, ScrollEventArgs e)

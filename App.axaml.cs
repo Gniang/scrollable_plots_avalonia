@@ -28,7 +28,6 @@ namespace avalonia_play
                 // var window = new Window();
                 window.Content = CreateView(window);
                 window.StartWatchingSourceFilesForHotReloading();
-                var c = 2;
 
                 desktop.MainWindow = window;
             }
