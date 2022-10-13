@@ -15,6 +15,41 @@ public static class ControlExtensions
         return panel;
     }
 
+    public static T SetGrid<T>(this T control,
+                                int? rowIndex = null,
+                                int? columnIndex = null,
+                                int? rowSpan = null,
+                                int? columnSpan = null)
+    where T : Control
+    {
+        if (rowIndex != null)
+            Grid.SetRow(control, rowIndex.Value);
+
+        if (columnIndex != null)
+            Grid.SetColumn(control, columnIndex.Value);
+
+        if (rowSpan != null)
+            Grid.SetRowSpan(control, rowSpan.Value);
+
+        if (columnSpan != null)
+            Grid.SetColumnSpan(control, columnSpan.Value);
+
+        return control;
+    }
+
+    public static T ColumnDefinitions<T>(this T grid, string s)
+    where T : Grid
+    {
+        grid.ColumnDefinitions = new ColumnDefinitions(s);
+        return grid;
+    }
+
+    public static T RowDefinitions<T>(this T grid, string s)
+    where T : Grid
+    {
+        grid.RowDefinitions = new RowDefinitions(s);
+        return grid;
+    }
 
 
     /// <summary>

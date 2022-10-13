@@ -6,7 +6,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Logging;
+using Avalonia.Media;
 using Avalonia.ReactiveUI;
+using Live.Avalonia;
 using NumSharp;
 using ReactiveUI;
 using ScottPlot.Avalonia;
@@ -15,27 +17,27 @@ using ScottPlot.Plottable;
 namespace avalonia_play
 {
     public partial class MainWindow :
-    Window
+    // Window,
+    UserControl
     // ReactiveWindow<MainWindowViewModel>
     {
         public MainWindow()
         {
-            InitializeComponent();
-
             var plot = new ScottPlot.Avalonia.AvaPlot() { };
-            var d = (double[,])np.random.rand(200, 10_000).ToMuliDimArray<double>();
+            var d = (double[,])np.random.rand(200, 10_0).ToMuliDimArray<double>();
             plot.Plot.AddHeatmap(d);
 
-            Content = new DockPanel()
+            Content = new Grid()
             {
-                LastChildFill = true,
+                Background = Brushes.AliceBlue,
             }
+                .RowDefinitions("50,*,Auto")
                 .Children(new Control[]{
-                    new TextBox().DockTop(),
-                    new ScrollBar() { Name = "hscrollbar", Orientation = Avalonia.Layout.Orientation.Horizontal }
-                        .DockBottom()
+                    new TextBox().SetGrid(0),
+                    plot.SetGrid(1),
+                    new ScrollBar() { Orientation = Avalonia.Layout.Orientation.Horizontal }
+                        .SetGrid(2)
                         .On(nameof(ScrollBar.Scroll), (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e)),
-                    plot,
                 })
             ;
 
@@ -60,6 +62,7 @@ namespace avalonia_play
             // // avaPlot1.Plot.CoordinateFromPixel(new System.Drawing.Point(2, 2));
             // avaPlot1.Refresh();
         }
+
     }
 
     public class MainWindowViewModel :

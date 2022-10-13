@@ -1,11 +1,20 @@
+using System;
+using System.Diagnostics;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Live.Avalonia;
 
 namespace avalonia_play
 {
-    public partial class App : Application
+    public partial class App : Application, ILiveView
     {
+        public object CreateView(Window window)
+        {
+            return new MainWindow();
+        }
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -15,7 +24,13 @@ namespace avalonia_play
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow();
+                var window = new LiveViewHost(this, Console.WriteLine);
+                // var window = new Window();
+                window.Content = CreateView(window);
+                window.StartWatchingSourceFilesForHotReloading();
+                var c = 2;
+
+                desktop.MainWindow = window;
             }
 
             base.OnFrameworkInitializationCompleted();

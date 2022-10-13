@@ -6,5 +6,6 @@
         "editor.defaultFormatter": "redhat.vscode-xml"
     },
     "editor.formatOnSave": true,
-    "xml.format.preserveAttributeLineBreaks": true
+    "xml.format.preserveAttributeLineBreaks": true,
+    "editor.inlayHints.enabled": "on"
 }
