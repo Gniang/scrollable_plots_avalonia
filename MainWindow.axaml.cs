@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -19,19 +20,21 @@ using static EnumerableExtensions;
 
 namespace avalonia_play
 {
-    public partial class MainWindow :
-    // Window,
-    UserControl
-    // ReactiveWindow<MainWindowViewModel>
+
+
+
+    public class MainPage : UserControl, IPageView
     {
-        public MainWindow()
+
+        public MainPage()
         {
             var plots = Enumerable.Range(0, 3)
                 .Select(i =>
                 {
                     var plot = new AvaPlot();
-                    var d = (double[,])np.random.rand(Constants.IMG_SIZE.Height, Constants.IMG_SIZE.Width).ToMuliDimArray<double>();
-                    var hm = plot.Plot.AddHeatmap(d);
+                    var testData = (double[,])np.random.rand(Constants.IMG_SIZE.Height, Constants.IMG_SIZE.Width).ToMuliDimArray<double>();
+                    var hm = plot.Plot.AddHeatmap(testData, lockScales: false);
+                    plot.Configuration.Zoom = false;
                     return new OffsetHeatmap(plot, new[] { hm });
                 })
                 .ToList();
@@ -40,13 +43,17 @@ namespace avalonia_play
             {
                 Background = Brushes.Azure,
             }
-                .ColumnDefinitions($"50,*")
-                .RowDefinitions($"*")
+                .ColumnDefinitions($"150,*")
+                .RowDefinitions($"30,Auto,*")
                 .Children(ToArrayFlat<Control>(
-                        new TextBox().SetGrid(0, 0, 5),
+                        new TextBox().SetGrid(0, 0, 1),
+                        new Button() { Content = "Second Page", Margin = new Thickness(5, 10, 0, 0) }
+                            .SetGrid(1, 0, rowSpan: 1)
+                            .On(nameof(Button.Click), new EventHandler<RoutedEventArgs>(BtnClick)),
+
                         new Grid() { Margin = new Avalonia.Thickness(10, 0, 0, 0) }
                             .ColumnDefinitions("*")
-                            .RowDefinitions($"{string.Join(",", "*".Repeat(plots.Count))},Auto")
+                            .RowDefinitions($"{"*".Repeat(plots.Count).JoinString(",")},Auto")
                             .Children(ToArrayFlat<Control>(
                plots.Select((plot, i) =>
                                 {
@@ -59,40 +66,50 @@ namespace avalonia_play
                                     Orientation = Avalonia.Layout.Orientation.Horizontal,
                                 }
                                     .SetGrid(plots.Count + 1)
-                                    .On(nameof(ScrollBar.Scroll), (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e))
+                                    .On(nameof(ScrollBar.Scroll), new EventHandler<ScrollEventArgs>(SyncPlotByScroll))
                                 )
-                            ).SetGrid(0, 1)
+                            )
+                            .SetGrid(0, 1, rowSpan: 3)
                 )
             )
             ;
+
+            void BtnClick(object? sender, RoutedEventArgs e)
+            {
+                this.Navigate(App.CreateWindow<SecondWindow>());
+            }
 
             void SyncPlotByScroll(object? s, ScrollEventArgs e)
             {
                 Debug.WriteLine($"scroll:{e.NewValue}");
                 plots.ForEach(x =>
                 {
-                    x.SetXMin(e.NewValue * 20);
+                    x.SetXMin(e.NewValue / 100 * Constants.IMG_SIZE.Width);
                     x.Refresh();
                 });
             }
-
-            // this.WhenActivated(disposables =>
-            // {
-            //     /* Handle interactions etc. */
-            //     plot.RefreshRequest();
-            // });
-
-            // DataContext = new MainWindowViewModel();
-
-            // double[] dataX = new double[] { 1, 2, 3, 4, 5 };
-            // double[] dataY = new double[] { 1, 4, 9, 16, 25 };
-            // AvaPlot avaPlot1 = this.Find<AvaPlot>("AvaPlot1");
-            // avaPlot1.Plot.AddScatter(dataX, dataY);
-            // // var a = avaPlot1.Plot.GetCoordinate(1, 2);
-            // // avaPlot1.Plot.CoordinateFromPixel(new System.Drawing.Point(2, 2));
-            // avaPlot1.Refresh();
         }
+    }
+    public class SecondWindow : UserControl, IPageView
+    {
+        public SecondWindow()
+        {
+            this.Content = new StackPanel()
+                .Children(
+                    new Button() { Content = "main activate" }
+                        .OnClick((s, e) =>
+                        {
+                            var mainPage = this.FindWindow<MainPage>();
+                            mainPage?.GetOwnerWindow()?.Activate();
+                        }),
+                    new Button() { Content = "close" }
+                        .OnClick((s, e) =>
+                        {
+                            this.GetOwnerWindow()?.Close();
+                        })
+                );
 
+        }
     }
 
     public class MainWindowViewModel :

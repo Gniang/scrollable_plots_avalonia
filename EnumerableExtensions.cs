@@ -17,6 +17,17 @@ public static class EnumerableExtensions
         return Enumerable.Repeat(element, count);
     }
 
+    /// <summary>
+    /// Concatenates the members of a collection, using the specified separator between each member.
+    /// </summary>
+    /// <param name="values">A collection that contains the objects to concatenate.</param>
+    /// <param name="sepalater">The string to use as a separator. separator is included in the returned string only if values has more than one element.</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>A string that consists of the elements of values delimited by the separator string. -or- System.String.Empty if values has no elements.</returns>
+    public static string JoinString<T>(this IEnumerable<T> values, string sepalater)
+    {
+        return string.Join(sepalater, values);
+    }
 
     /// <summary>
     /// Concatenate and flatten multipe <see cref="IEnumerable{T}"/> or <see cref="{T}"/> objects.

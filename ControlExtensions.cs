@@ -2,11 +2,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace avalonia_play;
 
 public static class ControlExtensions
 {
+
+    public static T OnClick<T>(this T button, Action<object?, RoutedEventArgs> action)
+    where T : Button
+    {
+        button.Click += new EventHandler<RoutedEventArgs>(action);
+        return button;
+    }
+
+    public static Window? GetOwnerWindow(this IControl control)
+    {
+        var parent = control;
+        while (parent != null)
+        {
+            if (parent is Window w)
+            {
+                return w;
+            }
+            parent = parent.Parent;
+        }
+        return null;
+    }
 
     public static T Children<T>(this T panel, IEnumerable<IControl> controls)
     where T : IPanel

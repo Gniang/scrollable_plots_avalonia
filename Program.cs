@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using System;
 using Avalonia.ReactiveUI;
+using NLog.Fluent;
+using NLog;
 
 namespace avalonia_play
 {
@@ -10,9 +12,30 @@ namespace avalonia_play
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
         [STAThread]
-        public static void Main(string[] args) => BuildAvaloniaApp()
-            .StartWithClassicDesktopLifetime(args);
-
+        public static void Main(string[] args)
+        {
+            LogManager.Configuration = new NLog.Config.LoggingConfiguration();
+            {
+                LogManager.Configuration.AddRule(LogLevel.Debug, LogLevel.Fatal, new NLog.Targets.ConsoleTarget("logConsole"));
+            }
+            var logger = LogManager.GetCurrentClassLogger();
+            try
+            {
+                BuildAvaloniaApp()
+                    .StartWithClassicDesktopLifetime(args);
+            }
+            catch (Exception e)
+            {
+                // here we can work with the exception, for example add it to our log file
+                logger.Fatal(e, "Something very bad happened");
+            }
+            finally
+            {
+                // This block is optional. 
+                // Use the finally-block if you need to clean things up or similar
+                LogManager.Flush();
+            }
+        }
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
