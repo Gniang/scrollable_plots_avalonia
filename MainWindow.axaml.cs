@@ -27,33 +27,53 @@ namespace avalonia_play
         public MainWindow()
         {
             var plots = Enumerable.Range(0, 3)
-                .Select(x => new ScottPlot.Avalonia.AvaPlot())
+                .Select(i =>
+                {
+                    var plot = new AvaPlot();
+                    var d = (double[,])np.random.rand(Constants.IMG_SIZE.Height, Constants.IMG_SIZE.Width).ToMuliDimArray<double>();
+                    var hm = plot.Plot.AddHeatmap(d);
+                    return new OffsetHeatmap(plot, new[] { hm });
+                })
                 .ToList();
-
-            plots.ForEach(plot =>
-            {
-                var d = (double[,])np.random.rand(200, 10_0).ToMuliDimArray<double>();
-                plot.Plot.AddHeatmap(d);
-            });
 
             Content = new Grid()
             {
-                Background = Brushes.AliceBlue,
+                Background = Brushes.Azure,
             }
-                .RowDefinitions($"50,{string.Join(",", Enumerable.Repeat("*", plots.Count))},Auto")
-                .Children(ToFlatArray<Control>(
-                        new TextBox().SetGrid(0),
-                        plots.Select((plot, i) => plot.SetGrid(i + 1)),
-                        new ScrollBar() { Orientation = Avalonia.Layout.Orientation.Horizontal }
-                            .SetGrid(plots.Count + 1)
-                            .On(nameof(ScrollBar.Scroll), (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e))
-                    )
+                .ColumnDefinitions($"50,*")
+                .RowDefinitions($"*")
+                .Children(ToArrayFlat<Control>(
+                        new TextBox().SetGrid(0, 0, 5),
+                        new Grid() { Margin = new Avalonia.Thickness(10, 0, 0, 0) }
+                            .ColumnDefinitions("*")
+                            .RowDefinitions($"{string.Join(",", "*".Repeat(plots.Count))},Auto")
+                            .Children(ToArrayFlat<Control>(
+               plots.Select((plot, i) =>
+                                {
+                                    plot.SetXMin(0).SetXZoom(500);
+                                    plot.View.SetGrid(i);
+                                    return plot.View;
+                                }),
+                                new ScrollBar()
+                                {
+                                    Orientation = Avalonia.Layout.Orientation.Horizontal,
+                                }
+                                    .SetGrid(plots.Count + 1)
+                                    .On(nameof(ScrollBar.Scroll), (object? s, ScrollEventArgs e) => SyncPlotByScroll(s, e))
+                                )
+                            ).SetGrid(0, 1)
                 )
+            )
             ;
 
-            static void SyncPlotByScroll(object? s, ScrollEventArgs e)
+            void SyncPlotByScroll(object? s, ScrollEventArgs e)
             {
                 Debug.WriteLine($"scroll:{e.NewValue}");
+                plots.ForEach(x =>
+                {
+                    x.SetXMin(e.NewValue * 20);
+                    x.Refresh();
+                });
             }
 
             // this.WhenActivated(disposables =>

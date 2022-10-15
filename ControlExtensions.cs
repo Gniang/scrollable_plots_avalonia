@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls;
 
 namespace avalonia_play;
 
 public static class ControlExtensions
 {
-    public static T Children<T>(this T panel, params IControl[] controls)
+
+    public static T Children<T>(this T panel, IEnumerable<IControl> controls)
     where T : IPanel
     {
         foreach (var c in controls)
@@ -13,6 +16,11 @@ public static class ControlExtensions
             panel.Children.Add(c);
         }
         return panel;
+    }
+    public static T Children<T>(this T panel, params IControl[] controls)
+    where T : IPanel
+    {
+        return Children(panel, controls.AsEnumerable());
     }
 
     public static T SetGrid<T>(this T control,

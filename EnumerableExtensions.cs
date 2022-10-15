@@ -4,18 +4,40 @@ using System.Linq;
 
 public static class EnumerableExtensions
 {
-    public static T[] ToFlatArray<T>(params object[] enumerableItems)
+    /// <summary>
+    /// Generates a sequence that contains one repeated value.
+    /// </summary>
+    /// <param name="element">The value to be repeated.</param>
+    /// <param name="count">The number of times to repeat the value in the generated sequence.</param>
+    /// <exception cref="ArgumentOutOfRangeException">count is less than 0.</exception>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>An <see cref="IEnumerable{T}"/> that contains a repeated value.</returns>
+    public static IEnumerable<T> Repeat<T>(this T element, int count)
     {
-        return Concat<T>(enumerableItems).ToArray();
+        return Enumerable.Repeat(element, count);
     }
 
 
-    public static IEnumerable<T> Concat<T>(params IEnumerable<T>[] enumerableItems)
+    /// <summary>
+    /// Concatenate and flatten multipe <see cref="IEnumerable{T}"/> or <see cref="{T}"/> objects.
+    /// </summary>
+    /// <param name="enumerableItems"></param>
+    /// <exception cref="System.ArgumentException">enumerableItems contains other than <see cref="{T}"/> or <see cref="IEnumerable{T}"/> </exception>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>An <see cref="IEnumerable{T}"/> that concatenated and flatted input items.</returns>
+    public static T[] ToArrayFlat<T>(params object[] enumerableItems)
     {
-        return enumerableItems.SelectMany(x => x);
+        return ConcatFlat<T>(enumerableItems).ToArray();
     }
 
-    public static IEnumerable<T> Concat<T>(params object[] enumerableItems)
+    /// <summary>
+    /// Concatenate and flatten multipe <see cref="IEnumerable{T}"/> or <see cref="{T}"/> objects.
+    /// </summary>
+    /// <param name="enumerableItems"></param>
+    /// <exception cref="System.ArgumentException">enumerableItems contains other than <see cref="{T}"/> or <see cref="IEnumerable{T}"/> </exception>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>An <see cref="IEnumerable{T}"/> that concatenated and flatted input items.</returns>
+    public static IEnumerable<T> ConcatFlat<T>(params object[] enumerableItems)
     {
         return enumerableItems.SelectMany(x =>
         {
@@ -28,11 +50,37 @@ public static class EnumerableExtensions
         });
     }
 
+    /// <summary>
+    /// Concatenate and flatten multipe Enumerable objects.
+    /// <code>
+    /// Concat( new [] {1, 2}, new {] {3, 4} new [] {5, 6} ) => [ 1, 2, 3, 4, 5, 6 ]
+    /// </code>
+    /// </summary>
+    /// <param name="enumerableItems">Enumerable objects.</param>
+    /// <return>An <see cref="IEnumerable{T}"/> that concatenated and flatted input items.</return>
+    public static IEnumerable<T> ConcatFlat<T>(params IEnumerable<T>[] enumerableItems)
+    {
+        return enumerableItems.SelectMany(x => x);
+    }
+
+    /// <summary>
+    /// Concatenate single object to Enumerable objects.
+    /// </summary>
+    /// <param name="source">Single object.</param>
+    /// <param name="values">Enumerable objects.</param>
+    /// <returns>An <see cref="IEnumerable{T}"/> that concatenated input items.</returns>
     public static IEnumerable<T> Concat<T>(this T source, IEnumerable<T> values)
     {
         return ToEnumeralbe(source).Concat(values);
     }
 
+    /// <summary>
+    /// Concatinate Enumerable objects to single object.
+    /// </summary>
+    /// <param name="source">Enumerable objects.</param>
+    /// <param name="value">Single object.</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>An <see cref="IEnumerable{T}"/> that concatenated input items.</returns>
     public static IEnumerable<T> Concat<T>(this IEnumerable<T> source, T value)
     {
         return source.Concat(ToEnumeralbe(value));

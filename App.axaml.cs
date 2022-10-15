@@ -4,24 +4,27 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Themes.Fluent;
 using Live.Avalonia;
 
 namespace avalonia_play
 {
-    public partial class App : Application, ILiveView
+    public class App : Application, ILiveView
     {
+
         public object CreateView(Window window)
         {
             return new MainWindow();
         }
 
-        public override void Initialize()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        // public override void Initialize()
+        // {
+        //     AvaloniaXamlLoader.Load(this);
+        // }
 
         public override void OnFrameworkInitializationCompleted()
         {
+            this.Styles.Add(new FluentTheme(new Uri("avares://ControlCatalog/Styles")) { Mode = FluentThemeMode.Light });
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var window = new LiveViewHost(this, Console.WriteLine);
@@ -35,4 +38,5 @@ namespace avalonia_play
             base.OnFrameworkInitializationCompleted();
         }
     }
+
 }
