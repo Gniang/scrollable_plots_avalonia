@@ -43,7 +43,7 @@ namespace avalonia_play
             {
                 Background = Brushes.Azure,
             }
-                .ColumnDefinitions($"150,*")
+                .ColumnDefinitions($"120,*")
                 .RowDefinitions($"30,Auto,*")
                 .Children(ToArrayFlat<Control>(
                         new TextBox().SetGrid(0, 0, 1),

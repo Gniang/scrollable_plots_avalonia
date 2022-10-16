@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -11,7 +13,9 @@ using ScottPlot.Avalonia;
 
 namespace avalonia_play
 {
+
     public class App : Application
+    // ,ILiveView
     {
         public static readonly bool IsDebug = true;
 
@@ -20,22 +24,11 @@ namespace avalonia_play
         /// </summary>
         public static Window CreateWindow<T>(string windowName = "") where T : IPageView, new()
         {
-            Window? window = null;
-            if (IsDebug)
+            return new Window
             {
-                // デバッグ用。コードを保存したらビューを組み立てなおす。
-                var liveWindow = new LiveViewHost(new ViewReloader(), Console.WriteLine) { Name = windowName };
-                liveWindow.AttachDevTools();
-                liveWindow.StartWatchingSourceFilesForHotReloading();
-                window = liveWindow;
-            }
-            else
-            {
-                window = new Window() { Name = windowName };
-            }
-            window.Content = new T();
-            ViewReloader.Add<T>(window);
-            return window;
+                Name = windowName,
+                Content = new T()
+            };
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -43,8 +36,9 @@ namespace avalonia_play
             this.Styles.Add(new FluentTheme(new Uri("avares://ControlCatalog/Styles")) { Mode = FluentThemeMode.Light });
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = App.CreateWindow<MainPage>();
-                MultiWindow.Init(desktop.MainWindow);
+                Window window = CreateWindow<MainPage>();
+                desktop.MainWindow = window;
+                MultiWindow.Init(window);
             }
             else
             {
