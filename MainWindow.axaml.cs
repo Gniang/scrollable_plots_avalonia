@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -15,8 +16,13 @@ using NumSharp;
 using ReactiveUI;
 using ScottPlot.Avalonia;
 using ScottPlot.Plottable;
+using System.Dynamic;
 
 using static EnumerableExtensions;
+using System.Collections.Generic;
+using Avalonia.Data;
+using System.Collections.ObjectModel;
+using Avalonia.Threading;
 
 namespace avalonia_play
 {
@@ -28,7 +34,7 @@ namespace avalonia_play
 
         public MainPage()
         {
-            var plots = Enumerable.Range(0, 3)
+            var plots = Enumerable.Range(0, 1)
                 .Select(i =>
                 {
                     var plot = new AvaPlot();
@@ -39,37 +45,81 @@ namespace avalonia_play
                 })
                 .ToList();
 
+            var vm = new MainPageViewModel();
+            this.DataContext = vm;
+            vm.Items = new ObservableCollection<Item>();
+            // Task.Run(() =>
+            // {
+            var sw = Stopwatch.StartNew();
+            var items = new List<Item>();
+            var testData = (double[,])np.random.rand(30000, 500).ToMuliDimArray<double>();
+            foreach (var r in Enumerable.Range(0, 30000))
+            {
+                var row = new Item
+                {
+                    Item1 = testData[r, 1],
+                    Item2 = testData[r, 2],
+                    Item3 = testData[r, 3],
+                    // Item4 = testData[r, 4],
+                    // Item5 = testData[r, 5]
+                };
+                // items.Add(row);
+                vm.Items.Add(row);
+            }
+            // Dispatcher.UIThread.Post(() =>
+            // {
+
+            // vm.Items.AddRange(items);
+            Debug.WriteLine($"binded:{sw.Elapsed}");
+            //     });
+            // });
+
             Content = new Grid()
             {
-                Background = Brushes.Azure,
+                Background = Brushes.AliceBlue,
             }
-                .ColumnDefinitions($"120,*")
-                .RowDefinitions($"30,Auto,*")
+                // .ColumnDefinitions($"120,*")
+                // .RowDefinitions($"30,Auto,1*,2*")
+                .ColumnDefinitions($"*")
+                .RowDefinitions($"50,*")
                 .Children(ToArrayFlat<Control>(
-                        new TextBox().SetGrid(0, 0, 1),
-                        new Button() { Content = "Second Page", Margin = new Thickness(5, 10, 0, 0) }
-                            .SetGrid(1, 0, rowSpan: 1)
-                            .On(nameof(Button.Click), new EventHandler<RoutedEventArgs>(BtnClick)),
+                        new TextBox()
+                            .SetGrid(0, 0, 1)
+                            ,
+            //             new Button() { Content = "Second Page", Margin = new Thickness(5, 10, 0, 0) }
+            //                 .SetGrid(1, 0, rowSpan: 1)
+            //                 .On(nameof(Button.Click), new EventHandler<RoutedEventArgs>(BtnClick))
+            //                 ,
 
-                        new Grid() { Margin = new Avalonia.Thickness(10, 0, 0, 0) }
-                            .ColumnDefinitions("*")
-                            .RowDefinitions($"{"*".Repeat(plots.Count).JoinString(",")},Auto")
-                            .Children(ToArrayFlat<Control>(
-               plots.Select((plot, i) =>
-                                {
-                                    plot.SetXMin(0).SetXZoom(500);
-                                    plot.View.SetGrid(i);
-                                    return plot.View;
-                                }),
-                                new ScrollBar()
-                                {
-                                    Orientation = Avalonia.Layout.Orientation.Horizontal,
-                                }
-                                    .SetGrid(plots.Count + 1)
-                                    .On(nameof(ScrollBar.Scroll), new EventHandler<ScrollEventArgs>(SyncPlotByScroll))
-                                )
-                            )
-                            .SetGrid(0, 1, rowSpan: 3)
+            //             new Grid() { Margin = new Avalonia.Thickness(10, 0, 0, 0) }
+            //                 .SetGrid(0, 1, rowSpan: 3)
+            //                 .ColumnDefinitions("*")
+            //                 .RowDefinitions($"{"*".Repeat(plots.Count).JoinString(",")},Auto")
+            //                 .Children(ToArrayFlat<Control>(
+            //    plots.Select((plot, i) =>
+            //                     {
+            //                         plot.SetXMin(0).SetXZoom(500);
+            //                         plot.View.SetGrid(i);
+            //                         return plot.View;
+            //                     }),
+            //                     new ScrollBar()
+            //                     {
+            //                         Orientation = Avalonia.Layout.Orientation.Horizontal,
+            //                     }
+            //                         .SetGrid(plots.Count + 1)
+            //                         .On(nameof(ScrollBar.Scroll), new EventHandler<ScrollEventArgs>(SyncPlotByScroll))
+            //                     )
+            //                 )
+            //                 ,
+
+                        new DataGrid() { Items = vm.Items, AutoGenerateColumns = true }
+                          .SetGrid(1, 0)
+                // .SetGrid(3, 1)
+                // .Columns(
+                //     new DataGridTextColumn() { Header = 1, Binding = new Binding() }
+                //     new DataGridTextColumn() { Header = 1 }
+                //     new DataGridTextColumn() { Header = 1 }
+                // )
                 )
             )
             ;
@@ -145,4 +195,5 @@ namespace avalonia_play
 
         public void ButtonClicked() => ButtonText = "Clicked!!!";
     }
+
 }

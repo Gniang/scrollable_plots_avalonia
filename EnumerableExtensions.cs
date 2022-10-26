@@ -1,9 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 
 public static class EnumerableExtensions
 {
+    public static void AddRange<T>(this ObservableCollection<T> sourceItems, IEnumerable<T> items)
+    {
+        var itProperty = typeof(ObservableCollection<T>).GetProperty("Items", BindingFlags.NonPublic | BindingFlags.Instance);
+        var colResetMethod = typeof(ObservableCollection<T>).GetMethod("OnCollectionReset", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (itProperty.GetValue(sourceItems) is IList<T> list)
+        {
+            foreach (var item in items)
+            {
+                list.Add(item);
+            }
+            colResetMethod?.Invoke(sourceItems, null);
+        }
+    }
+
     /// <summary>
     /// Generates a sequence that contains one repeated value.
     /// </summary>

@@ -3,6 +3,7 @@ using System;
 using Avalonia.ReactiveUI;
 using NLog.Fluent;
 using NLog;
+using System.Diagnostics;
 
 namespace avalonia_play
 {
@@ -17,6 +18,7 @@ namespace avalonia_play
             LogManager.Configuration = new NLog.Config.LoggingConfiguration();
             {
                 LogManager.Configuration.AddRule(LogLevel.Debug, LogLevel.Fatal, new NLog.Targets.ConsoleTarget("logConsole"));
+                LogManager.Configuration.AddRule(LogLevel.Debug, LogLevel.Fatal, new NLog.Targets.FileTarget("logFile") { FileName = "log.txt" });
             }
             var logger = LogManager.GetCurrentClassLogger();
             try
@@ -28,6 +30,7 @@ namespace avalonia_play
             {
                 // here we can work with the exception, for example add it to our log file
                 logger.Fatal(e, "Something very bad happened");
+                Debug.WriteLine(e.ToString());
             }
             finally
             {

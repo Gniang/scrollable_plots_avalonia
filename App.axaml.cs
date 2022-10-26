@@ -6,6 +6,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
 using Avalonia.Themes.Fluent;
 using Live.Avalonia;
 using NumSharp;
@@ -34,6 +36,8 @@ namespace avalonia_play
         public override void OnFrameworkInitializationCompleted()
         {
             this.Styles.Add(new FluentTheme(new Uri("avares://ControlCatalog/Styles")) { Mode = FluentThemeMode.Light });
+            var gridUri = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml");
+            this.Styles.Add(new StyleInclude(gridUri) { Source = gridUri });
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 Window window = CreateWindow<MainPage>();

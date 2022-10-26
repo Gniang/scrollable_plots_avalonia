@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Interactivity;
 
 namespace avalonia_play;
@@ -14,6 +16,25 @@ public static class ControlExtensions
     {
         button.Click += new EventHandler<RoutedEventArgs>(action);
         return button;
+    }
+
+    public static T Columns<T>(this T grid, IEnumerable<DataGridColumn> columns) where T : DataGrid
+    {
+        foreach (var col in columns)
+        {
+            grid.Columns.Add(col);
+        }
+        return grid;
+    }
+    public static T Columns<T>(this T grid, params DataGridColumn[] columns) where T : DataGrid
+    {
+        return Columns(grid, columns.AsEnumerable());
+    }
+
+    public static TControl Bind<TControl, TBindingItem>(this TControl control, TBindingItem value) where TControl : Control
+    {
+        // control.Bind(AvaloniaProperty.RegisterDirect(), new Binding());
+        return control;
     }
 
     public static Window? GetOwnerWindow(this IControl control)
@@ -81,6 +102,29 @@ public static class ControlExtensions
         return grid;
     }
 
+    /// <summary>
+    /// Subscribe Event
+    /// <para>
+    /// <example>
+    /// eg.
+    /// <code language="C#">
+    /// <para>
+    ///   Button.Click += (s, e) => { Debug.WriteLine("Clicked"); };
+    /// </para>
+    ///      ↓
+    /// <para>
+    ///   Button.On("Click", (object? s, RoutedEventArgs e) => { Debug.WriteLine("Clicked"); } );
+    /// </para>
+    /// </code>
+    /// </example>
+    /// </para>
+    /// </summary>
+    public static T On<T, TEvent>(this T control, string eventName, Action<object?, TEvent> eventHandler)
+    where T : IControl
+    where TEvent : EventArgs
+    {
+        return On(control, eventName, new EventHandler<TEvent>(eventHandler));
+    }
 
     /// <summary>
     /// Subscribe Event
