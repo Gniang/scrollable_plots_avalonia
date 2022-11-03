@@ -6,7 +6,7 @@ using System.Reflection;
 
 public static class EnumerableExtensions
 {
-    public static void AddRange<T>(this ObservableCollection<T> sourceItems, IEnumerable<T> items)
+    public static ObservableCollection<T> AddRange<T>(this ObservableCollection<T> sourceItems, IEnumerable<T> items)
     {
         var itProperty = typeof(ObservableCollection<T>).GetProperty("Items", BindingFlags.NonPublic | BindingFlags.Instance);
         var colResetMethod = typeof(ObservableCollection<T>).GetMethod("OnCollectionReset", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -19,6 +19,7 @@ public static class EnumerableExtensions
             }
             colResetMethod?.Invoke(sourceItems, null);
         }
+        return sourceItems;
     }
 
     /// <summary>

@@ -1,19 +1,20 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Dynamic;
 
 namespace avalonia_play
 {
     internal class MainPageViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<Item> items;
+        private DataView items;
 
         public MainPageViewModel()
         {
         }
 
-        public ObservableCollection<Item> Items
+        public DataView Items
         {
             get => this.items;
             set

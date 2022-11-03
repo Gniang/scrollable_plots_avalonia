@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -31,9 +32,21 @@ public static class ControlExtensions
         return Columns(grid, columns.AsEnumerable());
     }
 
-    public static TControl Bind<TControl, TBindingItem>(this TControl control, TBindingItem value) where TControl : Control
+    public static TControl SetBind<TControl, TViewModel>(this TControl control, string propertyName, TViewModel bindingViewModel, string bindingPath, BindingMode mode = BindingMode.Default) where TControl : Control
     {
-        // control.Bind(AvaloniaProperty.RegisterDirect(), new Binding());
+        var f = typeof(TControl).GetField(propertyName, BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
+        var avaloniaProperty = f?.GetValue(control) as AvaloniaProperty;
+        if (avaloniaProperty is null) throw new ArgumentOutOfRangeException($"`{typeof(TControl).FullName}` is not contained `{propertyName}` AvaloniaProperty");
+        control.Bind(avaloniaProperty,new Binding(bindingPath, mode) { Source = bindingViewModel });
+        return control;
+    }
+
+    public static TControl SetBind<TControl, TViewModel>(this TControl control, string propertyName, IBinding bindingData) where TControl : Control
+    {
+        var p = typeof(TControl).GetProperty(propertyName);
+        var avaloniaProperty = p?.GetValue(control) as AvaloniaProperty;
+        if (avaloniaProperty is null) throw new ArgumentOutOfRangeException($"`{typeof(TControl).FullName}` is not contained `{propertyName}` AvaloniaProperty");
+        control.Bind(avaloniaProperty, bindingData);
         return control;
     }
 

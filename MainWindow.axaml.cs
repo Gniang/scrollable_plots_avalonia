@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using Avalonia.Data;
 using System.Collections.ObjectModel;
 using Avalonia.Threading;
+using System.Data;
 
 namespace avalonia_play
 {
@@ -47,74 +48,66 @@ namespace avalonia_play
 
             var vm = new MainPageViewModel();
             this.DataContext = vm;
-            vm.Items = new ObservableCollection<Item>();
-            // Task.Run(() =>
-            // {
-            var sw = Stopwatch.StartNew();
-            var items = new List<Item>();
-            var testData = (double[,])np.random.rand(30000, 500).ToMuliDimArray<double>();
-            foreach (var r in Enumerable.Range(0, 30000))
+            Task.Run(() =>
             {
-                var row = new Item
+                var sw = Stopwatch.StartNew();
+                var items = new List<Item>();
+                var testData = (double[,])np.random.rand(30000, 500).ToMuliDimArray<double>();
+                Debug.WriteLine($"dataCreated:{sw.Elapsed}");
+                var t = testData.ToDataTable();
+                Debug.WriteLine($"toDataTable:{sw.Elapsed}");
+                //var t = Array.ForEach(testData, );
+                Dispatcher.UIThread.Post(() =>
                 {
-                    Item1 = testData[r, 1],
-                    Item2 = testData[r, 2],
-                    Item3 = testData[r, 3],
-                    // Item4 = testData[r, 4],
-                    // Item5 = testData[r, 5]
-                };
-                // items.Add(row);
-                vm.Items.Add(row);
-            }
-            // Dispatcher.UIThread.Post(() =>
-            // {
 
-            // vm.Items.AddRange(items);
-            Debug.WriteLine($"binded:{sw.Elapsed}");
-            //     });
-            // });
+                    vm.Items = t.AsDataView();
+                    Debug.WriteLine($"binded:{sw.Elapsed}");
+                });
+            });
 
             Content = new Grid()
             {
                 Background = Brushes.AliceBlue,
             }
-                // .ColumnDefinitions($"120,*")
-                // .RowDefinitions($"30,Auto,1*,2*")
-                .ColumnDefinitions($"*")
-                .RowDefinitions($"50,*")
+                .ColumnDefinitions($"120,*")
+                .RowDefinitions($"30,Auto,1*,2*")
+                // .ColumnDefinitions($"*")
+                // .RowDefinitions($"50,*")
                 .Children(ToArrayFlat<Control>(
                         new TextBox()
                             .SetGrid(0, 0, 1)
                             ,
-            //             new Button() { Content = "Second Page", Margin = new Thickness(5, 10, 0, 0) }
-            //                 .SetGrid(1, 0, rowSpan: 1)
-            //                 .On(nameof(Button.Click), new EventHandler<RoutedEventArgs>(BtnClick))
-            //                 ,
+                        new Button() { Content = "Second Page", Margin = new Thickness(5, 10, 0, 0) }
+                            .SetGrid(1, 0, rowSpan: 1)
+                            .On(nameof(Button.Click), new EventHandler<RoutedEventArgs>(BtnClick))
+                            ,
 
-            //             new Grid() { Margin = new Avalonia.Thickness(10, 0, 0, 0) }
-            //                 .SetGrid(0, 1, rowSpan: 3)
-            //                 .ColumnDefinitions("*")
-            //                 .RowDefinitions($"{"*".Repeat(plots.Count).JoinString(",")},Auto")
-            //                 .Children(ToArrayFlat<Control>(
-            //    plots.Select((plot, i) =>
-            //                     {
-            //                         plot.SetXMin(0).SetXZoom(500);
-            //                         plot.View.SetGrid(i);
-            //                         return plot.View;
-            //                     }),
-            //                     new ScrollBar()
-            //                     {
-            //                         Orientation = Avalonia.Layout.Orientation.Horizontal,
-            //                     }
-            //                         .SetGrid(plots.Count + 1)
-            //                         .On(nameof(ScrollBar.Scroll), new EventHandler<ScrollEventArgs>(SyncPlotByScroll))
-            //                     )
-            //                 )
-            //                 ,
+                        new Grid() { Margin = new Avalonia.Thickness(10, 0, 0, 0) }
+                            .SetGrid(0, 1, rowSpan: 3)
+                            .ColumnDefinitions("*")
+                            .RowDefinitions($"{"*".Repeat(plots.Count).JoinString(",")},Auto")
+                            .Children(ToArrayFlat<Control>(
+               plots.Select((plot, i) =>
+                                {
+                                    plot.SetXMin(0).SetXZoom(500);
+                                    plot.View.SetGrid(i);
+                                    return plot.View;
+                                }),
+                                new ScrollBar()
+                                {
+                                    Orientation = Avalonia.Layout.Orientation.Horizontal,
+                                }
+                                    .SetGrid(plots.Count + 1)
+                                    .On(nameof(ScrollBar.Scroll), new EventHandler<ScrollEventArgs>(SyncPlotByScroll))
+                                )
+                            )
+                            ,
 
-                        new DataGrid() { Items = vm.Items, AutoGenerateColumns = true }
-                          .SetGrid(1, 0)
-                // .SetGrid(3, 1)
+                        new DataGrid() {AutoGenerateColumns = true }
+                            .SetBind(nameof(DataGrid.ItemsProperty), vm, nameof(vm.Items))
+                        //   .SetGrid(1, 0)
+                            .SetGrid(rowIndex: 3, 1)
+                 //.Columns((1..500).Select(x => new DataGridTextColumn() { Binding = new Binding($"Column{x}") }))
                 // .Columns(
                 //     new DataGridTextColumn() { Header = 1, Binding = new Binding() }
                 //     new DataGridTextColumn() { Header = 1 }
