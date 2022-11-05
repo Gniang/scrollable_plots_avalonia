@@ -24,6 +24,8 @@ namespace avalonia_play
             }
         }
 
+        public string Text => "test color";
+
         public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

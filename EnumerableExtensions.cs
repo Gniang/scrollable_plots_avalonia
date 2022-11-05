@@ -11,7 +11,7 @@ public static class EnumerableExtensions
         var itProperty = typeof(ObservableCollection<T>).GetProperty("Items", BindingFlags.NonPublic | BindingFlags.Instance);
         var colResetMethod = typeof(ObservableCollection<T>).GetMethod("OnCollectionReset", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        if (itProperty.GetValue(sourceItems) is IList<T> list)
+        if (itProperty?.GetValue(sourceItems) is IList<T> list)
         {
             foreach (var item in items)
             {

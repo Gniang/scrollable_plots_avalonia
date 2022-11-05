@@ -77,8 +77,12 @@ namespace avalonia_play
                         new TextBox()
                             .SetGrid(0, 0, 1)
                             ,
+                        new TextBox()
+                            .SetGrid(1, 0, 1)
+                            .SetBind(TextBox.TextProperty, vm, nameof(vm.Text))
+                            ,
                         new Button() { Content = "Second Page", Margin = new Thickness(5, 10, 0, 0) }
-                            .SetGrid(1, 0, rowSpan: 1)
+                            .SetGrid(2, 0, rowSpan: 1)
                             .On(nameof(Button.Click), new EventHandler<RoutedEventArgs>(BtnClick))
                             ,
 
@@ -104,7 +108,7 @@ namespace avalonia_play
                             ,
 
                         new DataGrid() {AutoGenerateColumns = true }
-                            .SetBind(nameof(DataGrid.ItemsProperty), vm, nameof(vm.Items))
+                            .SetBind(DataGrid.ItemsProperty, vm, nameof(vm.Items))
                         //   .SetGrid(1, 0)
                             .SetGrid(rowIndex: 3, 1)
                  //.Columns((1..500).Select(x => new DataGridTextColumn() { Binding = new Binding($"Column{x}") }))
